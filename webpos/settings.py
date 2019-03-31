@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'webpos.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'webposdb',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
         'USER': 'user',
         'PASSWORD': 'password',
         'HOST':'0.0.0.0',
-        'PORT':3306
+        'PORT':5432,
     }
 }
 

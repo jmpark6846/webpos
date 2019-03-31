@@ -18,3 +18,7 @@ class CommonResponse:
     @staticmethod
     def success_with_data(data, status=status.HTTP_200_OK, **kwargs):
         return WPResponse(True, message="정상처리 되었습니다.", body=data, status=status, **kwargs)
+
+    @staticmethod
+    def invalid_with_message(message):
+        return WPResponse(False, message=message, status=status.HTTP_400_BAD_REQUEST)

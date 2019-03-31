@@ -1,11 +1,10 @@
 from rest_framework import status
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from webpos_account.account_methods import create_jwt
-from webpos_account.models import Account
+from webpos_account.account_methods import create_token
+from webpos_account.models import Account, RefreshToken
 from webpos_account.serializers import AccountSerializer, LoginSerializer
 from webpos_common.responses import WPResponse, CommonResponse
 from webpos_common.utils import get_now
@@ -17,6 +16,19 @@ class AccountViewSet(BaseViewSet):
     serializer_class = AccountSerializer
     queryset = Account.objects.filter(deleted_at=None)
 
+
+class AccountView(APIView):
+    def post(self, request:Request):
+        serializer = AccountSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if Account.objects.filter(email=serializer.validated_data['email']).exists():
+            return CommonResponse.invalid_with_message('이미 가입된 이메일 입니다.')
+
+        account = serializer.save()
+        account.set_password(serializer.validated_data['password'])
+        account.save()
+        return CommonResponse.success
 
 
 class TokenView(APIView):
@@ -32,20 +44,25 @@ class TokenView(APIView):
         if not account.check_password(serializer.validated_data['password']):
             return WPResponse(False, "비밀번호가 올바르지 않습니다.", status=status.HTTP_400_BAD_REQUEST)
 
-        token = create_jwt(account)
-        res = CommonResponse.success_with_data(data={"token":token})
+        access_token, refresh_token = create_token(account)
+        res = CommonResponse.success_with_data(data={"token":access_token.value})
 
         account.last_login = get_now()
         account.save()
 
         res.set_cookie(
-            f'webpos_refreshtoken',
-            value=refresh_token,
-            expires=,
+            'webpos_refreshtoken',
+            value=refresh_token.value,
+            expires=refresh_token.expire_at.timestamp(),
             path='/',
             httponly=False, # todo: https 연결 사용하여 True 로 변경
         )
         return res
+
+    def put(self, request: Request):
+        RefreshToken.objects.filter()
+
+
 # 로그인
 # 이메일, 비밀번호 입력
 # 이메일, 만료일시 로 토큰 생성
