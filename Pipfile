@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "*"
+python-dotenv = "*"
+djangorestframework = "*"
+mysqlclient = "*"
+pendulum = "*"
+django-extensions = "*"
+werkzeug = "*"
+pyjwt = "*"
+
+[requires]
+python_version = "3.7"
