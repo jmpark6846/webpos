@@ -19,4 +19,4 @@ class AccountTestCase(APITestCase):
 
         res = self.client.post(reverse('webpos_account:token'), data=self.account_data)
         self.assertEqual(res.status_code, 200)
-
+        self.assertIsNotNone(res.data['body']['token'])
