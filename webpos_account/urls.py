@@ -8,7 +8,7 @@ app_name = WebposAccountConfig.name
 routers = SimpleRouter()
 routers.register('', AccountViewSet, base_name='account')
 urlpatterns = [
-    path('account/', AccountView.as_view(), name='account-create'),
+    path('create/', AccountView.as_view(), name='account-create'),
     path('token/', TokenView.as_view(), name='token')
 ]
 

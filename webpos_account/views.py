@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from webpos_account.account_methods import create_token
+from webpos_account.account_methods import create_token, get_new_access_token
 from webpos_account.models import Account, RefreshToken
 from webpos_account.serializers import AccountSerializer, LoginSerializer
 from webpos_common.responses import WPResponse, CommonResponse
@@ -60,7 +60,22 @@ class TokenView(APIView):
         return res
 
     def put(self, request: Request):
-        RefreshToken.objects.filter()
+        email = request.data.get('email', None)
+        if not email:
+            return CommonResponse.invalid
+
+        refresh_token = RefreshToken.objects.filter(account__email=email).last()
+        print(refresh_token, refresh_token.is_expired)
+        if not refresh_token or refresh_token.is_expired:
+            return WPResponse(False, WPResponse.templates['need_login'], status=status.HTTP_401_UNAUTHORIZED)
+
+        account = Account.objects.filter(email=email, deleted_at=None).last()
+        if not account:
+            return CommonResponse.not_found
+
+        access_token = get_new_access_token(account=account)
+        return CommonResponse.success_with_data(data={"token":access_token.value})
+
 
 
 # 로그인

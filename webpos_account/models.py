@@ -68,4 +68,4 @@ class RefreshToken(models.Model):
 
     @property
     def is_expired(self):
-        return self.expire_at > get_now()
+        return self.expire_at < get_now()

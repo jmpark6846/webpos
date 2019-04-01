@@ -7,3 +7,9 @@ def create_token(account: Account):
     refresh_token = RefreshToken.objects.create(account=account)
     refresh_token.generate()
     return access_token, refresh_token
+
+
+def get_new_access_token(account: Account):
+    access_token = AccessToken(account=account)
+    access_token.create_token()
+    return access_token
